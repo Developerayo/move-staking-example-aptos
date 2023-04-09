@@ -2,7 +2,7 @@ address 0x1 {
 module StakingPool {
     use 0x1::Signer;
     use 0x1::Vector;
-    use 0x1::Apt; // using Aptos's native token APT
+    use 0x1::BridgedMATIC; // using BridgedMATIC token,  non-literal wrapped MATIC version for Aptos
 
     struct PoolInfo has key {
         total_stake: u64,
@@ -27,7 +27,7 @@ module StakingPool {
 
     public fun add_stake(owner_capability: &OwnerCapability, staker: &signer, amount: u64) acquires PoolInfo {
         assert(amount > 0, 1); // Stake amount must be greater than 0
-        Apt::withdraw(staker, amount); // Withdraw APT here 
+        BridgedMATIC::withdraw(staker, amount); // Withdraw BridgedMATIC here 
 
         let pool_info = borrow_global_mut<PoolInfo>(owner_capability.owner_address);
         let staker_address = Signer::address_of(staker);
@@ -63,7 +63,7 @@ module StakingPool {
 
         staker.stake = staker.stake - amount;
         pool_info.total_stake = pool_info.total_stake - amount;
-        Apt::deposit(staker, amount); // Deposit APT back
+        BridgedMATIC::deposit(staker, amount); // Deposit BridgedMATIC back
 
         if (staker.stake == 0) {
             Vector::remove(&mut pool_info.stakers, staker_index); // Remove staker if their stake is 0
